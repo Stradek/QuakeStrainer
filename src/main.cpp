@@ -4,7 +4,7 @@
 #include <cassert>
 #include <psapi.h>
 
-#define AMMO_ADDRESS 0x49BC88
+#define AMMO_ADDRESS 0x49BC88 // this is wrong! Need to find the correct address
 
 // from: https://stackoverflow.com/questions/865152/how-can-i-get-a-process-handle-by-its-name-in-c
 void EnableDebugPriv()

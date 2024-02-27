@@ -41,7 +41,7 @@ namespace PatchingUtils
         {
             while (Process32Next(snapshot, &entry) == TRUE)
             {
-                if (stricmp(entry.szExeFile, processName) == 0)
+                if (strcmp(entry.szExeFile, processName) == 0)
                 {
                     // process found
                     foundProcessCount++;
@@ -82,6 +82,34 @@ namespace PatchingUtils
         }
 
         return baseAddress;
+    }
+
+    DWORD_PTR GetRelativeAddress(HANDLE hProcess, DWORD_PTR address)
+    {
+        DWORD_PTR baseAddr = GetProcessBaseAddress(hProcess);
+        return (DWORD_PTR) baseAddr + address;
+    }
+
+    DWORD_PTR ReadMemoryRelative(HANDLE hProcess, DWORD_PTR address)
+    {
+        DWORD_PTR relAddress = GetRelativeAddress(hProcess, address);
+
+		DWORD_PTR value;
+		SIZE_T bytesRead;
+        ReadProcessMemory(hProcess, (LPCVOID) relAddress, &value, sizeof(value), &bytesRead);
+        assert(bytesRead == sizeof(value) && "ReadProcessMemory failed.");
+
+		return value;
+    }
+
+    DWORD_PTR ReadMemoryGlobal(HANDLE hProcess, DWORD_PTR address)
+    {
+        DWORD_PTR value;
+        SIZE_T bytesRead;
+        ReadProcessMemory(hProcess, (LPCVOID)address, &value, sizeof(value), &bytesRead);
+        assert(bytesRead == sizeof(value) && "ReadProcessMemory failed.");
+
+        return value;
     }
 
     //DWORD_PTR GetModuleAddress(DWORD processID)

@@ -1,7 +1,13 @@
 #include "quakePatchingApi.h"
 #include "utils.h"
 
-QuakeModdingAPI::QuakeModdingAPI()
+#define AMMO_ADDRESS_1 0x49BC88
+#define AMMO_ADDRESS_2 0x49BC94
+#define AMMO_PTR_ADDRESS_1 0x4F1D98
+#define AMMO_PTR_ADDRESS_1_OFFSET_1 0x88
+#define AMMO_PTR_ADDRESS_1_OFFSET_2 0x8C
+
+QuakeModdingAPI::QuakeModdingAPI() : pid(0)
 {
 }
 
@@ -39,11 +45,8 @@ DWORD QuakeModdingAPI::GetQuakeProcessId()
 
 DWORD_PTR QuakeModdingAPI::GetQuakeProcessBaseAddress()
 {
-	DWORD_PTR baseAddr;
-	{
-		PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
-		return PatchingUtils::GetProcessBaseAddress(hProcess.GetHandle());
-	}
+	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
+	return PatchingUtils::GetProcessBaseAddress(hProcess.GetHandle());
 }
 
 //DWORD_PTR QuakePatchingAPI::GetQuakeModuleBaseAddress(DWORD pid, const char* moduleName)
@@ -53,5 +56,20 @@ DWORD_PTR QuakeModdingAPI::GetQuakeProcessBaseAddress()
 
 void QuakeModdingAPI::SetAmmo(DWORD value)
 {
-	std::cout << "Setting ammo not yet implemented." << std::endl;
+	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
+
+	DWORD_PTR ammoPtrAddr = PatchingUtils::ReadMemoryRelative(hProcess.GetHandle(), AMMO_PTR_ADDRESS_1);
+
+	bool bSuccess = PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_1, value) &&
+		PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_2, value) &&
+		PatchingUtils::WriteMemoryRelative<float>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_1, (float) value) &&
+		PatchingUtils::WriteMemoryRelative<float>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_2, (float) value);
+	
+	if (!bSuccess)
+	{
+		std::cout << "Writing new ammo value failed." << std::endl;
+		return;
+	}
+
+	std::cout << "Ammo set to " << value << "." << std::endl;
 }

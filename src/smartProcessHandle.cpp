@@ -6,6 +6,31 @@
 
 namespace PatchingUtils
 {
+    SmartProcessHandle::SmartProcessHandle(DWORD pid) : pid(pid)
+    {
+        assert(pid != 0);
+
+        hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+        if (hProcess == NULL)
+        {
+            std::cout << "OpenProcess failed." << std::endl;
+            return;
+        }
+    }
+
+    SmartProcessHandle::~SmartProcessHandle()
+    {
+        if (hProcess == NULL)
+        {
+            return;
+        }
+
+        if (CloseHandle(hProcess) == 0)
+        {
+            std::cout << "CloseHandle failed." << std::endl;
+        }
+    }
+
     bool SmartProcessHandle::IsValid()
     {
         return hProcess != nullptr;
@@ -15,31 +40,5 @@ namespace PatchingUtils
     {
         assert(hProcess != nullptr);
         return hProcess;
-    }
-
-    DWORD_PTR SmartProcessHandle::GetBaseAddress()
-    {
-        return baseAddress;
-    }
-
-    LPVOID SmartProcessHandle::GetRelativeAddr(DWORD_PTR address)
-    {
-        return  (LPVOID)(baseAddress + address);
-    }
-
-    template<typename T>
-    BOOL SmartProcessHandle::WriteMemoryRelative(LPVOID address, T value)
-    {
-        LPVOID relAddress = GetRelativeAddr((DWORD_PTR)address);
-
-        SIZE_T written;
-        return WriteProcessMemory(hProcess, relAddress, &value, sizeof(value), &written);
-    }
-
-    template<typename T>
-    BOOL SmartProcessHandle::WriteMemoryGlobal(LPVOID address, T value)
-    {
-        SIZE_T written;
-        return WriteProcessMemory(hProcess, address, &value, sizeof(value), &written);
     }
 }

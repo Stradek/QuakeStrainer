@@ -52,7 +52,7 @@ namespace PatchingUtils
                         SmartProcessHandle hProcess = SmartProcessHandle(pid);
                         if (!hProcess.IsValid())
                         {
-                            std::cout << "Failed to OpenProcess with name '" << processName << "' and PID " << pid << std::endl;
+                            std::cout << "Failed to open process with name '" << processName << "' and PID " << pid << std::endl;
                             continue;
                         }
                     }
@@ -120,7 +120,7 @@ namespace PatchingUtils
 		DWORD_PTR value;
 		SIZE_T bytesRead;
         ReadProcessMemory(hProcess, (LPCVOID) relAddress, &value, sizeof(value), &bytesRead);
-        assert(bytesRead == sizeof(value) && "ReadProcessMemory failed.");
+        assert(bytesRead == sizeof(value) && "Reading process memory failed.");
 
 		return value;
     }
@@ -130,14 +130,8 @@ namespace PatchingUtils
         DWORD_PTR value;
         SIZE_T bytesRead;
         ReadProcessMemory(hProcess, (LPCVOID)address, &value, sizeof(value), &bytesRead);
-        assert(bytesRead == sizeof(value) && "ReadProcessMemory failed.");
+        assert(bytesRead == sizeof(value) && "Reading process memory failed.");
 
         return value;
     }
-
-    //DWORD_PTR GetModuleAddress(DWORD processID)
-    //{
-    //    // placeholder for proper code
-    //}
-
 }

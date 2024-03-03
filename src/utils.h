@@ -21,21 +21,23 @@ namespace PatchingUtils
     template<typename T>
     bool WriteMemoryRelative(HANDLE hProcess, DWORD_PTR address, T value)
     {
-        DWORD_PTR relAddress = GetRelativeAddress(hProcess, address);
+        DWORD_PTR relativeAddress = GetRelativeAddress(hProcess, address);
 
         SIZE_T written;
-        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)relAddress, &value, sizeof(value), &written);
+        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)relativeAddress, &value, sizeof(value), &written);
 
-        // assert (ReadMemoryRelative(hProcess, address) == value && "WriteProcessMemory failed.");
+        assert(bSuccess && "Writing process memory failed.");
         
         return bSuccess && written == sizeof(value);
     }
 
     template<typename T>
-    bool WriteMemoryGlobal(HANDLE hProcess, DWORD_PTR address, T value)
+    bool WriteMemoryGlobal(HANDLE hProcess, DWORD_PTR globalAddress, T value)
     {
         SIZE_T written;
-        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)relAddress, &value, sizeof(value), &written);
+        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)globalAddress, &value, sizeof(value), &written);
+
+        assert(bSuccess && "Writing process memory failed.");
 
         return bSuccess && written == sizeof(value);
     }

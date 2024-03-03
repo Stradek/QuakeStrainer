@@ -12,6 +12,7 @@ namespace PatchingUtils
     extern DWORD GetProcessIdByProcessName(const char* processName);
 
     extern DWORD_PTR GetProcessBaseAddress(HANDLE hProcess);
+    extern DWORD_PTR GetModuleBaseAddress(HANDLE hProcess, const char* moduleName);
     extern DWORD_PTR GetRelativeAddress(HANDLE hProcess, DWORD_PTR address);
 
     extern DWORD_PTR ReadMemoryRelative(HANDLE hProcess, DWORD_PTR address);

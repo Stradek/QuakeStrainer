@@ -13,7 +13,6 @@ private:
 
 	DWORD GetQuakeProcessId();
 	DWORD_PTR GetQuakeProcessBaseAddress();
-	//DWORD_PTR GetQuakeModuleBaseAddress(DWORD pid, const char* moduleName);
 public:
 	QuakeModdingAPI();
 	~QuakeModdingAPI();

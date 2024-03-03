@@ -84,6 +84,29 @@ namespace PatchingUtils
         return baseAddress;
     }
 
+    DWORD_PTR GetModuleBaseAddress(HANDLE hProcess, const char* moduleName)
+    {
+        HMODULE hModules[1024];
+		DWORD cbNeeded;
+        if (EnumProcessModules(hProcess, hModules, sizeof(hModules), &cbNeeded))
+        {
+            for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+            {
+				TCHAR szModName[MAX_PATH];
+                if (GetModuleFileNameEx(hProcess, hModules[i], szModName, sizeof(szModName) / sizeof(TCHAR)))
+                {
+					std::string modName = szModName;
+                    if (modName.find(moduleName) != std::string::npos)
+                    {
+						return (DWORD_PTR)hModules[i];
+					}
+				}
+			}
+		}
+
+		return 0;
+    }
+
     DWORD_PTR GetRelativeAddress(HANDLE hProcess, DWORD_PTR address)
     {
         DWORD_PTR baseAddr = GetProcessBaseAddress(hProcess);

@@ -36,6 +36,6 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/bin)
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 get_all_target_files(FILES 0 ${SOURCE_DIR})
 
-add_executable(QuakeSTrainer "${FILES}")
+add_executable(QuakeStrainer "${FILES}")
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT QuakeSTrainer)

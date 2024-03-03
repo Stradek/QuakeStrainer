@@ -15,12 +15,11 @@ namespace PatchingUtils
 
         LUID luid;
         LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid);
-
+        
         TOKEN_PRIVILEGES tkp;
         tkp.PrivilegeCount = 1;
         tkp.Privileges[0].Luid = luid;
         tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-
         AdjustTokenPrivileges(hToken, false, &tkp, sizeof(tkp), NULL, NULL);
 
         CloseHandle(hToken);

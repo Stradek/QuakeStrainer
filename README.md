@@ -1,3 +1,4 @@
+[![Build Windows](https://github.com/Stradek/QuakeSTrainer/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Stradek/QuakeSTrainer/actions/workflows/build-windows.yml)
 # Quake STrainer
 Quake STrainer is my reverse engineering project of classic Quake.
 It is still work in progress and evolving rapidly. 

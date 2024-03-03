@@ -38,4 +38,13 @@ get_all_target_files(FILES 0 ${SOURCE_DIR})
 
 add_executable(QuakeStrainer "${FILES}")
 
-set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT QuakeSTrainer)
+#
+# Dependencies
+#
+
+# CoreMatrixToolkit
+add_subdirectory(internal/CoreMatrixToolkit)
+target_link_libraries(QuakeStrainer PRIVATE CoreMatrixToolkit)
+
+
+set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT QuakeStrainer)

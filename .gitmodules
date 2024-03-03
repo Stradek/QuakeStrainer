@@ -1,0 +1,3 @@
+[submodule "internal/CoreMatrixToolkit"]
+	path = internal/CoreMatrixToolkit
+	url = https://github.com/Stradek/CoreMatrixToolkit

@@ -43,8 +43,9 @@ add_executable(QuakeStrainer "${FILES}")
 #
 
 # CoreMatrixToolkit
-add_subdirectory(internal/CoreMatrixToolkit)
+set(CORE_MATRIX_TOOLKIT_DIR "internal/CoreMatrixToolkit")
+add_subdirectory(${CORE_MATRIX_TOOLKIT_DIR})
 target_link_libraries(QuakeStrainer PRIVATE CoreMatrixToolkit)
-
+target_include_directories(QuakeStrainer PRIVATE ${CORE_MATRIX_TOOLKIT_DIR}/include)
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT QuakeStrainer)

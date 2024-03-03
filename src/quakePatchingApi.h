@@ -19,6 +19,5 @@ public:
 
 	bool Initialize();
 
-
 	void SetAmmo(DWORD value);
 };

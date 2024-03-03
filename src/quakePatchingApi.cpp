@@ -49,11 +49,6 @@ DWORD_PTR QuakeModdingAPI::GetQuakeProcessBaseAddress()
 	return PatchingUtils::GetProcessBaseAddress(hProcess.GetHandle());
 }
 
-//DWORD_PTR QuakePatchingAPI::GetQuakeModuleBaseAddress(DWORD pid, const char* moduleName)
-//{
-//	// placeholder for proper code
-//}
-
 void QuakeModdingAPI::SetAmmo(DWORD value)
 {
 	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());

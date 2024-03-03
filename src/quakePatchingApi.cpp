@@ -59,6 +59,11 @@ void QuakeModdingAPI::SetAmmo(DWORD value)
 	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
 
 	DWORD_PTR ammoPtrAddr = PatchingUtils::ReadMemoryRelative(hProcess.GetHandle(), AMMO_PTR_ADDRESS_1);
+	if (ammoPtrAddr == 0)
+	{
+		std::cout << "Failed to read ammo pointer address." << std::endl;
+		return;
+	}
 
 	bool bSuccess = PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_1, value) &&
 		PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_2, value) &&

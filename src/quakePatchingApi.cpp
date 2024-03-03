@@ -49,6 +49,12 @@ DWORD_PTR QuakeModdingAPI::GetQuakeProcessBaseAddress()
 	return PatchingUtils::GetProcessBaseAddress(hProcess.GetHandle());
 }
 
+DWORD_PTR QuakeModdingAPI::GetQuakeModuleBaseAddress(const char* moduleName)
+{
+	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(pid);
+	return PatchingUtils::GetModuleBaseAddress(hProcess.GetHandle(), moduleName);
+}
+
 //DWORD_PTR QuakePatchingAPI::GetQuakeModuleBaseAddress(DWORD pid, const char* moduleName)
 //{
 //	// placeholder for proper code
@@ -67,8 +73,8 @@ void QuakeModdingAPI::SetAmmo(DWORD value)
 
 	bool bSuccess = PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_1, value) &&
 		PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_2, value) &&
-		PatchingUtils::WriteMemoryRelative<float>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_1, (float) value) &&
-		PatchingUtils::WriteMemoryRelative<float>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_2, (float) value);
+		PatchingUtils::WriteMemoryGlobal<FLOAT>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_1, (FLOAT) value) &&
+		PatchingUtils::WriteMemoryGlobal<FLOAT>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_2, (FLOAT) value);
 	
 	if (!bSuccess)
 	{

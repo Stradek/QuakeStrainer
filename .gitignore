@@ -1,6 +1,12 @@
 # VS Code workspace
 .vscode/
 
+# Idea Jetbrains Rider folder
+.idea/
+
+# Solution file
+*.sln
+
 # Binaries directory
 /bin/
 

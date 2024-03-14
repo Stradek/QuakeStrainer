@@ -1,0 +1,56 @@
+name: Release C++ Library
+
+on:
+  push:
+    tags: "v*"
+
+jobs:
+  build-and-release:
+    name: Build and Release on Windows
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+
+    - name: Build C++ Project - Debug
+      run: |
+        cmake -G "Visual Studio 17 2022" -S . -B build 
+        cmake --build build --config Debug
+        
+    - name: Build C++ Project - Release
+      run: |
+        cmake -G "Visual Studio 17 2022" -S . -B build 
+        cmake --build build --config Release
+
+    - name: Prepare release directory, copy files, and zip on Windows
+      run: |
+        New-Item -Path "release/lib", "release/include" -ItemType Directory -Force
+        Copy-Item "bin/Release/*" "release/lib/"
+        Get-ChildItem "bin/Debug/*" | ForEach-Object {
+          $newName = $_.Name -replace "(.*)\.(.*)", '$1-d.$2'
+          Copy-Item $_.FullName "release/lib/$newName"
+        }
+        Copy-Item "include/*" "release/include/"
+        Compress-Archive -Path "release/*" -DestinationPath "release-windows.zip" -Force
+      shell: pwsh
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+      with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+
+    - name: Upload Release Asset
+      id: upload-release-asset 
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.RELEASES_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./release-windows.zip
+        asset_name: release-windows.zip
+        asset_content_type: application/zip

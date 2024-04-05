@@ -16,7 +16,7 @@ include(CMake/CMakeShared.cmake)
 # Project
 #
 
-project(QuakeSTrainer)
+project(QuakeStrainer)
 
 # Setting up custom properties and functions from "CMakeShared.cmake" file
 custom_cmake_setup()

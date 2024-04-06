@@ -4,68 +4,161 @@
 */
 
 #include "quakePatchingApi.h"
+
+#include "smartProcessHandle.h"
 #include "utils.h"
 
-#define AMMO_ADDRESS_1 0x49BC88
-#define AMMO_ADDRESS_2 0x49BC94
-#define AMMO_PTR_ADDRESS_1 0x4F1D98
-#define AMMO_PTR_ADDRESS_1_OFFSET_1 0x88
-#define AMMO_PTR_ADDRESS_1_OFFSET_2 0x8C
+#include "jobScheduler.h"
 
-QuakeModdingAPI::QuakeModdingAPI() : pid(0)
+#define QuakeProcessName "quakespasm.exe"
+
+enum QuakeMemAddresses : DWORD_PTR
 {
+	AMMO_ADDRESS_1 = 0x49BC88,
+	AMMO_ADDRESS_2 = 0x49BC94,
+	AMMO_PTR_ADDRESS_1 = 0x4F1D98,
+	AMMO_PTR_ADDRESS_1_OFFSET_1 = 0x88,
+	AMMO_PTR_ADDRESS_1_OFFSET_2 = 0x8C
+};
+
+enum JobSystemSettings : DWORD
+{
+	THREAD_COUNT = 2,
+	BACKGROUND_THREAD_UPDATE_INTERVAL = 100
+};
+
+QuakeModdingApi::QuakeModdingApi()
+{
+	JobScheduler::createInstance(THREAD_COUNT);
 }
 
-QuakeModdingAPI::~QuakeModdingAPI()
+QuakeModdingApi::~QuakeModdingApi()
 {
-
+	JobScheduler::destroyInstance();
 }
 
-bool QuakeModdingAPI::Initialize()
+bool QuakeModdingApi::CheckOneQuakeInstanceRunning()
 {
-	pid = GetQuakeProcessId();
-	if (pid == 0)
+	size_t quakeInstancesRunningCount = QuakeModdingApi::GetQuakeProcessCount();
+	if (quakeInstancesRunningCount == 1)
 	{
-		std::cout << "Failed to acquire Quake process ID." << std::endl;
+		return true;
 	}
 	else
 	{
-		std::cout << "Quake is running with process ID: " << pid << "." << std::endl;
+		if (quakeInstancesRunningCount == 0)
+		{
+			std::cout << "There is no Quake game instance running." << std::endl;
+		}
+		else if (quakeInstancesRunningCount > 1)
+		{
+			std::cout << "There is more than 1 Quake game instance running. "
+				   "Make sure you have only one game running when using this trainer." << std::endl;
+		}
+		return false;
+	}
+}
+
+bool QuakeModdingApi::IsOneQuakeInstanceRunning()
+{
+	return GetQuakeProcessCount() == 1;
+}
+
+bool QuakeModdingApi::Initialize()
+{
+	m_pid = GetQuakeProcessId();
+	UpdateQuakeState();
+	
+	if (m_state == QuakeState::NotRunning)
+	{
+		std::cout << "Quake is not running." << std::endl;
+		return false;
 	}
 
-	return pid != 0;
+	return true;
 }
 
-bool QuakeModdingAPI::IsQuakeRunning()
+bool QuakeModdingApi::IsPlayerSpawned()
 {
-	return GetQuakeProcessId() != 0;
+	if (!CheckOneQuakeInstanceRunning())
+	{
+		return false;
+	}
+	
+	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(m_pid);
+	const DWORD_PTR ammoPtrAddr = PatchingUtils::ReadMemoryRelative(hProcess.GetHandle(), AMMO_PTR_ADDRESS_1);
+	if (ammoPtrAddr == 0)
+	{
+		return false;
+	}
+	else
+	{
+		return true;
+	}
 }
 
-DWORD QuakeModdingAPI::GetQuakeProcessId()
+bool QuakeModdingApi::CheckPlayerSpawned()
 {
-	const char* processName = "quakespasm.exe";
-	DWORD pid = PatchingUtils::GetProcessIdByProcessName(processName);
-	return pid;
+	if (!IsPlayerSpawned())
+	{
+		std::cout << "Failed to find player instance. Make sure player is spawned." << std::endl;
+		return false;
+	}
+
+	return true;
 }
 
-DWORD_PTR QuakeModdingAPI::GetQuakeProcessBaseAddress()
+size_t QuakeModdingApi::GetQuakeProcessCount()
+{
+	return PatchingUtils::GetProcessCountByProcessName(QuakeProcessName);
+}
+
+DWORD QuakeModdingApi::GetQuakeProcessId()
+{
+	return PatchingUtils::GetProcessIdByProcessName(QuakeProcessName);
+}
+
+DWORD_PTR QuakeModdingApi::GetQuakeProcessBaseAddress()
 {
 	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
 	return PatchingUtils::GetProcessBaseAddress(hProcess.GetHandle());
 }
 
-void QuakeModdingAPI::SetAmmo(DWORD value)
+void QuakeModdingApi::UpdateQuakeState()
 {
-	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
-
-	DWORD_PTR ammoPtrAddr = PatchingUtils::ReadMemoryRelative(hProcess.GetHandle(), AMMO_PTR_ADDRESS_1);
-	if (ammoPtrAddr == 0)
+	// I will leave it for now like this, until I figure out other possible states
+	
+	if (!IsOneQuakeInstanceRunning())
 	{
-		std::cout << "Failed to read ammo pointer address." << std::endl;
-		return;
+		SetState(QuakeState::NotRunning);
+	}
+	else if(IsPlayerSpawned())
+	{
+		SetState(QuakeState::PlayerSpawned);
+	}
+	else
+	{
+		SetState(QuakeState::Running);
+	}
+}
+
+bool QuakeModdingApi::SetAmmo(const unsigned int value)
+{
+	if (!CheckPlayerSpawned())
+	{
+		return false;
 	}
 
-	bool bSuccess = PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_1, value) &&
+	PatchingUtils::SmartProcessHandle hProcess = PatchingUtils::SmartProcessHandle(GetQuakeProcessId());
+
+	const DWORD_PTR ammoPtrAddr = PatchingUtils::ReadMemoryRelative(hProcess.GetHandle(), AMMO_PTR_ADDRESS_1);
+	if (ammoPtrAddr == 0)
+	{
+		std::cout << "Failed to read ammo pointer address. Make sure player character is spawned." << std::endl;
+		return false;
+	}
+
+	const bool bSuccess = PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_1, value) &&
 		PatchingUtils::WriteMemoryRelative<DWORD>(hProcess.GetHandle(), (DWORD_PTR)AMMO_ADDRESS_2, value) &&
 		PatchingUtils::WriteMemoryGlobal<FLOAT>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_1, (FLOAT) value) &&
 		PatchingUtils::WriteMemoryGlobal<FLOAT>(hProcess.GetHandle(), ammoPtrAddr + AMMO_PTR_ADDRESS_1_OFFSET_2, (FLOAT) value);
@@ -73,8 +166,52 @@ void QuakeModdingAPI::SetAmmo(DWORD value)
 	if (!bSuccess)
 	{
 		std::cout << "Writing new ammo value failed." << std::endl;
-		return;
+		return false;
+	}
+	return true;
+}
+
+bool QuakeModdingApi::UpdateUnlimitedAmmo()
+{
+	if (!CheckPlayerSpawned())
+	{
+		return false;
+	}
+	
+	const bool bSuccess = SetAmmo(999);
+	if (!bSuccess)
+	{
+		std::cout << "Failed to set ammo." << std::endl;
+		return false;
+	}
+	return true;
+}
+
+bool QuakeModdingApi::ToggleOnUnlimitedAmmo()
+{
+	if (!CheckPlayerSpawned())
+	{
+		return false;
 	}
 
-	std::cout << "Ammo set to " << value << "." << std::endl;
+	JobScheduler::getInstance()->enqueueRepeatingJob([this]()
+		{
+			if(!IsPlayerSpawned())
+			{
+				return JobStatus::Finished;
+			}
+		
+			const bool bSuccess = UpdateUnlimitedAmmo();
+			if (!bSuccess)
+			{
+				std::cout << "Failed to update unlimited ammo." << std::endl;
+				return JobStatus::Failed;
+			}
+			
+			std::this_thread::sleep_for(std::chrono::milliseconds(BACKGROUND_THREAD_UPDATE_INTERVAL));
+			return JobStatus::Running;
+		});
+
+	std::cout << "Unlimited ammo enabled." << std::endl;
+	return true;
 }

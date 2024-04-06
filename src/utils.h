@@ -14,6 +14,7 @@ namespace PatchingUtils
     class SmartProcessHandle;
 
 	extern void EnableDebugPriv();
+    extern size_t GetProcessCountByProcessName(const char* processName);
     extern DWORD GetProcessIdByProcessName(const char* processName);
 
     extern DWORD_PTR GetProcessBaseAddress(HANDLE hProcess);

@@ -30,14 +30,37 @@ namespace PatchingUtils
         CloseHandle(hToken);
     }
 
+    size_t GetProcessCountByProcessName(const char* processName)
+    {
+        PROCESSENTRY32 entry;
+        entry.dwSize = sizeof(PROCESSENTRY32);
+        HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+        
+        size_t foundProcessCount = 0;
+        if (Process32First(snapshot, &entry) == TRUE)
+        {
+            while (Process32Next(snapshot, &entry) == TRUE)
+            {
+                if (strcmp(entry.szExeFile, processName) == 0)
+                {
+                    // process found
+                    foundProcessCount++;
+                }
+            }
+        }
+
+        return foundProcessCount;
+    }
+
     DWORD GetProcessIdByProcessName(const char* processName)
     {
+        // TODO: Return array of PID's
+        
         PROCESSENTRY32 entry;
         entry.dwSize = sizeof(PROCESSENTRY32);
 
         HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
 
-        HANDLE hProcess = NULL;
         DWORD pid = NULL;
 
         size_t foundProcessCount = 0;
@@ -64,14 +87,7 @@ namespace PatchingUtils
                 }
             }
         }
-
-        if (foundProcessCount > 1)
-        {
-			std::cout << "Found more than one process with name '" << processName << "'." << std::endl;
-            std::cout << "Make sure you run only one instance of the game." << std::endl;
-            return 0;
-		}
-
+        
         return pid;
     }
 

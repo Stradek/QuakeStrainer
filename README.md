@@ -6,12 +6,12 @@ Quake Strainer is my reverse engineering project of classic Quake.
 It is still work in progress and evolving rapidly. 
 
 ## Features
-- Uses my own implementation of low level utilities library
-- Uses my own implementation of job scheduler for background tasks
-- Build upon my own one reusable API to interact with Quake game which features functions like:
-  - Find quake process ID
-  - Check if player is spawned
-  - Set unlimited ammo
+- [x] Uses my own implementation of low level utilities library
+- [x] Uses my own implementation of job scheduler for background tasks
+- [x] Build upon my own one reusable API to interact with Quake game which features functions like:
+  - [x] Find quake process ID and attach to it with memory r/w access
+  - [x] Ensure player is spawned
+  - [x] Set unlimited ammo
 
 ## Goals
 - Develop my own toolkit for modding games:

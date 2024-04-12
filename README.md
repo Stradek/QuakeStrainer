@@ -5,6 +5,17 @@
 Quake Strainer is my reverse engineering project of classic Quake.
 It is still work in progress and evolving rapidly. 
 
+Prerequisites:
+- OS: Windows 
+- Visual Studio 2022
+- CMake(for exact version look into CMakeLists.txt)
+
+## Installation
+1. Clone Quake Strainer repository
+2. Run GenerateProjectVS2022.bat
+3. Open QuakeStrainer.sln in Visual Studio
+4. Build & Run QuakeStrainer
+
 ## Features
 - [x] Uses my own implementation of low level utilities library
 - [x] Uses my own implementation of job scheduler for background tasks

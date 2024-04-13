@@ -5,7 +5,7 @@
 Quake Strainer is my reverse engineering project of classic Quake.
 It is still work in progress and evolving rapidly. 
 
-Prerequisites:
+## Prerequisites:
 - OS: Windows 
 - Visual Studio 2022
 - CMake(for exact version look into CMakeLists.txt)

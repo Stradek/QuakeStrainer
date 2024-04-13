@@ -14,7 +14,7 @@ Prerequisites:
 1. Clone Quake Strainer repository
 2. Run GenerateProjectVS2022.bat
 3. Open QuakeStrainer.sln in Visual Studio
-4. Build & Run QuakeStrainer
+4. Build & Run QuakeStrainer project
 
 ## Features
 - [x] Uses my own implementation of low level utilities library

@@ -10,7 +10,7 @@ It is still work in progress and evolving rapidly.
 - MSBuild
 - CMake(for exact version look into CMakeLists.txt)
 
-## Installation
+## Usage
 1. Clone Quake Strainer repository
 2. Run GenerateProjectVS2022.bat
 3. Open QuakeStrainer.sln in Visual Studio

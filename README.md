@@ -11,7 +11,7 @@ It is still work in progress and evolving rapidly.
 - CMake(for exact version look into CMakeLists.txt)
 
 ## Usage
-1. Clone Quake Strainer repository
+1. Run `git clone --recursive https://github.com/Stradek/QuakeStrainer.git`
 2. Run GenerateProjectVS2022.bat
 3. Open QuakeStrainer.sln in Visual Studio
 4. Build & Run QuakeStrainer project

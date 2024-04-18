@@ -23,13 +23,13 @@ public:
 	~QuakeModdingApi();
 
 	static size_t GetQuakeProcessCount();
-	
-	static bool IsOneQuakeInstanceRunning();
-	static bool CheckOneQuakeInstanceRunning();
 
+	static bool IsQuakeInstanceRunning();
+	static bool CheckQuakeInstanceRunning();
 	bool IsPlayerSpawned();
 	bool CheckPlayerSpawned();
 	
+	bool InitQuakeStateThread();
 	bool Initialize();
 
 	bool SetAmmo(unsigned int value);
@@ -39,13 +39,13 @@ private:
 	DWORD m_pid = 0;
 	QuakeState m_state = QuakeState::NotRunning;
 
-private:
 	static DWORD GetQuakeProcessId();
 	static DWORD_PTR GetQuakeProcessBaseAddress();
 
 	void UpdateQuakeState();
 	void SetState(QuakeState state) {m_state = state;}
 
-	friend class JobScheduler;
 	bool UpdateUnlimitedAmmo();
+	
+	friend class JobScheduler;
 };

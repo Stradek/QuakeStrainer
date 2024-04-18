@@ -37,7 +37,7 @@ QuakeModdingApi::~QuakeModdingApi()
 	JobScheduler::destroyInstance();
 }
 
-bool QuakeModdingApi::CheckOneQuakeInstanceRunning()
+bool QuakeModdingApi::CheckQuakeInstanceRunning()
 {
 	size_t quakeInstancesRunningCount = QuakeModdingApi::GetQuakeProcessCount();
 	if (quakeInstancesRunningCount == 1)
@@ -59,10 +59,21 @@ bool QuakeModdingApi::CheckOneQuakeInstanceRunning()
 	}
 }
 
-bool QuakeModdingApi::IsOneQuakeInstanceRunning()
+bool QuakeModdingApi::IsQuakeInstanceRunning()
 {
 	return GetQuakeProcessCount() == 1;
 }
+
+bool InitQuakeStateThread()
+{
+	QuakeModdingApi* QuakeModdingApiInstancePtr = &this; 
+	JobScheduler::enqueueRepeatingJob([] => {
+		UpdateQuakeState();
+		std::this_thread::sleep_for(std::chrono::milliseconds(BACKGROUND_THREAD_UPDATE_INTERVAL));
+		return JobStatus::Running;
+	});
+}
+
 
 bool QuakeModdingApi::Initialize()
 {
@@ -80,7 +91,7 @@ bool QuakeModdingApi::Initialize()
 
 bool QuakeModdingApi::IsPlayerSpawned()
 {
-	if (!CheckOneQuakeInstanceRunning())
+	if (!CheckQuakeInstanceRunning())
 	{
 		return false;
 	}
@@ -128,7 +139,7 @@ void QuakeModdingApi::UpdateQuakeState()
 {
 	// I will leave it for now like this, until I figure out other possible states
 	
-	if (!IsOneQuakeInstanceRunning())
+	if (!IsQuakeInstanceRunning())
 	{
 		SetState(QuakeState::NotRunning);
 	}
@@ -144,7 +155,7 @@ void QuakeModdingApi::UpdateQuakeState()
 
 bool QuakeModdingApi::SetAmmo(const unsigned int value)
 {
-	if (!CheckPlayerSpawned())
+	if (m_state != QuakeState::PlayerSpawned)
 	{
 		return false;
 	}
@@ -173,7 +184,7 @@ bool QuakeModdingApi::SetAmmo(const unsigned int value)
 
 bool QuakeModdingApi::UpdateUnlimitedAmmo()
 {
-	if (!CheckPlayerSpawned())
+	if (m_state != QuakeState::PlayerSpawned)
 	{
 		return false;
 	}
@@ -189,14 +200,14 @@ bool QuakeModdingApi::UpdateUnlimitedAmmo()
 
 bool QuakeModdingApi::ToggleOnUnlimitedAmmo()
 {
-	if (!CheckPlayerSpawned())
+	if (m_state != QuakeState::PlayerSpawned)
 	{
 		return false;
 	}
 
 	JobScheduler::getInstance()->enqueueRepeatingJob([this]()
 		{
-			if(!IsPlayerSpawned())
+			if (m_state != QuakeState::PlayerSpawned)
 			{
 				return JobStatus::Finished;
 			}

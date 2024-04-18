@@ -11,9 +11,9 @@
 
 #define THREAD_WAIT_INVERVAL 100
 
-void WaitForOneQuakeGameRunning()
+void WaitForQuakeInstance()
 {
-    QuakeModdingApi::CheckOneQuakeInstanceRunning();
+    QuakeModdingApi::CheckQuakeInstanceRunning();
 
     while (QuakeModdingApi::GetQuakeProcessCount() != 1)
     {
@@ -37,7 +37,7 @@ bool WaitForPlayerToSpawn(QuakeModdingApi& quakeModdingApi)
     std::cout << "Waiting for player to spawn..." << std::endl;
     while (true)
     {
-        if (!QuakeModdingApi::IsOneQuakeInstanceRunning())
+        if (!QuakeModdingApi::IsQuakeInstanceRunning())
         {
             return false;
         }
@@ -62,7 +62,7 @@ int main() {
         bool bCanUseTrainer = false;
         while (!bCanUseTrainer)
         {
-            WaitForOneQuakeGameRunning();
+            WaitForQuakeInstance();
             InitializeQuakeModdingAPI(quakeModdingApi);
             bCanUseTrainer = WaitForPlayerToSpawn(quakeModdingApi);
         }

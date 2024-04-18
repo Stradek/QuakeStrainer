@@ -30,7 +30,7 @@ namespace PatchingUtils
         DWORD_PTR relativeAddress = GetRelativeAddress(hProcess, address);
 
         SIZE_T written;
-        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)relativeAddress, &value, sizeof(value), &written);
+        BOOL bSuccess = WriteProcessMemory(hProcess, reinterpret_cast<LPVOID>(relativeAddress), &value, sizeof(value), &written);
 
         assert(bSuccess && "Writing process memory failed.");
         
@@ -41,7 +41,7 @@ namespace PatchingUtils
     bool WriteMemoryGlobal(HANDLE hProcess, DWORD_PTR globalAddress, T value)
     {
         SIZE_T written;
-        BOOL bSuccess = WriteProcessMemory(hProcess, (LPVOID)globalAddress, &value, sizeof(value), &written);
+        BOOL bSuccess = WriteProcessMemory(hProcess, reinterpret_cast<LPVOID>(globalAddress), &value, sizeof(value), &written);
 
         assert(bSuccess && "Writing process memory failed.");
 

@@ -63,7 +63,6 @@ namespace PatchingUtils
 
         DWORD pid = NULL;
 
-        size_t foundProcessCount = 0;
         if (Process32First(snapshot, &entry) == TRUE)
         {
             while (Process32Next(snapshot, &entry) == TRUE)
@@ -71,7 +70,6 @@ namespace PatchingUtils
                 if (strcmp(entry.szExeFile, processName) == 0)
                 {
                     // process found
-                    foundProcessCount++;
                     pid = entry.th32ProcessID;
 
                     // try acquire handle for test
@@ -80,7 +78,6 @@ namespace PatchingUtils
                         if (!hProcess.IsValid())
                         {
                             std::cout << "Failed to open process with name '" << processName << "' and PID " << pid << std::endl;
-                            continue;
                         }
                     }
                     // test successful
@@ -98,7 +95,7 @@ namespace PatchingUtils
         DWORD       cbNeeded;
         if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
         {
-            baseAddress = (DWORD_PTR)hMods[0];
+            baseAddress = reinterpret_cast<DWORD_PTR>(hMods[0]);
         }
 
         return baseAddress;
@@ -118,7 +115,7 @@ namespace PatchingUtils
 					std::string modName = szModName;
                     if (modName.find(moduleName) != std::string::npos)
                     {
-						return (DWORD_PTR)hModules[i];
+						return reinterpret_cast<DWORD_PTR>(hModules[i]);
 					}
 				}
 			}
@@ -130,7 +127,7 @@ namespace PatchingUtils
     DWORD_PTR GetRelativeAddress(HANDLE hProcess, DWORD_PTR address)
     {
         DWORD_PTR baseAddr = GetProcessBaseAddress(hProcess);
-        return (DWORD_PTR) baseAddr + address;
+        return baseAddr + address;
     }
 
     DWORD_PTR ReadMemoryRelative(HANDLE hProcess, DWORD_PTR address)
@@ -139,7 +136,7 @@ namespace PatchingUtils
 
 		DWORD_PTR value;
 		SIZE_T bytesRead;
-        ReadProcessMemory(hProcess, (LPCVOID) relAddress, &value, sizeof(value), &bytesRead);
+        ReadProcessMemory(hProcess, reinterpret_cast<LPCVOID>(relAddress), &value, sizeof(value), &bytesRead);
         assert(bytesRead == sizeof(value) && "Reading process memory failed.");
 
 		return value;

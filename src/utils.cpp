@@ -140,7 +140,6 @@ namespace PatchingUtils
 		DWORD_PTR value;
 		SIZE_T bytesRead;
         ReadProcessMemory(hProcess, (LPCVOID) relAddress, &value, sizeof(value), &bytesRead);
-        assert(bytesRead == sizeof(value) && "Reading process memory failed.");
 
 		return value;
     }
@@ -150,7 +149,6 @@ namespace PatchingUtils
         DWORD_PTR value;
         SIZE_T bytesRead;
         ReadProcessMemory(hProcess, (LPCVOID)address, &value, sizeof(value), &bytesRead);
-        assert(bytesRead == sizeof(value) && "Reading process memory failed.");
 
         return value;
     }

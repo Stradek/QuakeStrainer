@@ -1,4 +1,8 @@
-[![Build Windows](https://github.com/Stradek/QuakeSTrainer/actions/workflows/build-windows.yml/badge.svg)](https://github.com/Stradek/QuakeSTrainer/actions/workflows/build-windows.yml)
+[![license](https://badgen.net/github/license/stradek/QuakeStrainer?color=blue)](https://github.com/Stradek/QuakeStrainer/blob/main/LICENSE)
+[![commits](https://badgen.net/github/commits/stradek/QuakeStrainer?color=238636&icon=git)](https://github.com/Stradek/QuakeStrainer/commits/main)
+[![last commit](https://badgen.net/github/last-commit/stradek/QuakeStrainer?color=238636&icon=github)](https://github.com/Stradek/QuakeStrainer/commits/main)
+[![Build Status](https://badgen.net/github/checks/stradek/QuakeStrainer/main)](https://github.com/Stradek/QuakeSTrainer/actions/workflows/build-windows.yml)
+
 # Quake Strainer
 
 ## Description

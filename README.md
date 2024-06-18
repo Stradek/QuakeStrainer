@@ -4,6 +4,7 @@
 ## Description
 Quake Strainer is my reverse engineering project of classic Quake.
 It is still work in progress and evolving rapidly. 
+Right now it supports only unlimited ammo hack.
 
 ## Prerequisites:
 - OS: Windows
@@ -15,6 +16,7 @@ It is still work in progress and evolving rapidly.
 2. Run GenerateProjectVS2022.bat
 3. Open QuakeStrainer.sln in Visual Studio
 4. Build & Run QuakeStrainer project
+5. Enjoy Quake!
 
 ## Features
 - [x] Uses my implementation of low level utilities library
@@ -28,5 +30,5 @@ It is still work in progress and evolving rapidly.
 - Develop my own toolkit for modding games:
 - Implement basic hacks like for: unlimitted ammo, god mode, all weapons unlocked etc
 - Be able to use hacks by injecting DLL
-- Create script for patching binary with my trainer:
-  - Not decided yet if I want to patch code in memory or patch game executable file
+- TBD: Create script for patching binary with my trainer:
+  - Not decided yet if I want to patch code in memory or create game executable file patcher.
